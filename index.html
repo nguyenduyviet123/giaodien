@@ -1,556 +1,184 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ứng dụng tìm đường Best First Search</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .container {
-            background-color: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-            max-width: 90%;
-            width: 1000px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-        canvas {
-            border: 1px solid #e0e0e0;
-            background-color: #fcfcfc;
-            border-radius: 8px;
-            width: 100%; /* Make canvas responsive */
-            height: auto; /* Maintain aspect ratio */
-            max-height: 500px; /* Limit max height */
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        .input-group label {
-            font-weight: 600;
-            color: #333;
-        }
-        .input-group select, .input-group input[type="text"] {
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 16px;
-            color: #374151;
-            transition: border-color 0.2s;
-        }
-        .input-group select:focus, .input-group input[type="text"]:focus {
-            outline: none;
-            border-color: #6366f1; /* Indigo-500 */
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-        .btn-primary {
-            background-color: #6366f1; /* Indigo-500 */
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            text-align: center;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #4f46e5; /* Indigo-600 */
-            box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
-        }
-        .result-box {
-            background-color: #eef2ff; /* Indigo-50 */
-            border: 1px solid #c7d2fe; /* Indigo-200 */
-            border-radius: 8px;
-            padding: 16px;
-            color: #4f46e5; /* Indigo-600 */
-            font-weight: 500;
-        }
-        .error-message {
-            color: #ef4444; /* Red-500 */
-            font-weight: 500;
-            margin-top: 8px;
-        }
-        /* Removed .node-label as it's no longer an HTML overlay */
-    </style>
+  <meta charset="UTF-8" />
+  <title>Tỏ tình với Vịt</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-image: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxMTEhURERIVFRUVGBsbGBgYGBkaGBgeFxoYGhkYGBgYHSggGB0lGx8ZITEhJSorLi8uFx8zODMtNzQtLisBCgoKDg0OGxAQGy0lHiUtLS0tLS0tLS0tLS0tLS0tLS0tLS0vLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAMIBAwMBIgACEQEDEQH/xAAcAAACAgMBAQAAAAAAAAAAAAAABQQGAQIDBwj/xABFEAACAQIFAQUFBQQGCgMBAAABAgMAEQQFEiExQQYTIlFhMnGBkaEHFEJSwRUjkrEzcoKy0eEkJUNiY3ODovDxNFN0Fv/EABkBAAMBAQEAAAAAAAAAAAAAAAABAgMEBf/EAC0RAAICAgICAQMCBQUAAAAAAAABAhEhMQMSQVEyBCJxBRNhgeHw8TNCobHB/9oADAMBAAIRAxEAPwD10UUUV5Z1hRRRQAUUUUAFFFFABRRRQAUUUUAFFFcsTikjALsFBYKCerMbKPeTQB1ooooAKKKKACii9FABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFAGRWKyKKtEMxRRRUFhRRRQBHzDGpDE80raUjUsx8gN+ByfSu0bhgGU3BFwRwQeCKq32gdlmx0caR6VdX3dibKljq8I9s302B9dxUrsLkBwWFELgd5qbWwYsG8R0kX4Gm23TenSovrHrd59FhooopEBRXmeffaJMZWjwQiEaMV72QFu8Yc6FBHh9etOex3bf7wxgxSpFMq6gwP7uRR7RUt7JHUE8b1XVmj4pJWXOik3/wDWYHVp++4e/wDzU/ne1Zn7T4VO/wBUtvuyo0hsSAJBdCpA8d/S/NKmT1focVX8bGgxDiVZplZNSqFkcR6gyOFC+EeEE8avEwF7gB7FKGAKm9wD67i4uORtW9CEnQs7Oqe5DszsX8VnLEpfhBr8Vhbrve524DOiikDFn3ssrxk2lBYAC+9t1PuIrjIjuGbQ2kuhKnYsAtmFj62pwF61msnxt7ZouRLSE2Pwr2Tu1ZQqHa9zuR4Lg3vanCDYCs0VUYKLbJlNySQUVwx+NjhjaaVgkaC7MeAOOlYw+Pid3jSRWePSXUEErrF11Dpcb1ZNEiigG/Fee9rO3cyTvhsEsf7o2kkkBI1dURQRx1J9aaVjjFyeD0Kiqh2G7Xtiy8E6Kk8YDeG+iRSbalB3FjYEeo+FvoaoJRcXTEvantJDgYjJMTcg92ArHWwFwuoCyk+pHWs9l+0kOOiEkJNwBrBVhoYi5XURZiPQnpXftBkseLi7iYt3ZZWYKbFtJuBfoL243o7P5LHhIu4hLaAzMoY3K6jfTfqAb870Yof29f4jKiiikQFFFFAGRRQKKtaIZiiiioLCiiigAooooAKi5o4ETjWqFlKqWIA1ONKC56liLV1xeJSJGkkYIii7MTYADqa86zXMHzNhpEkeDH5rA4ixuGVbao7EAhr/AA5po0hByZTMvyKSeFolXRJD4TruCrjpx8b+tWx+y2HbQZELld9ybG46gdKkHPYA2kuQAdOsq/d3G1u9tpvfbnmtYc9RivgkCOQqSlQEYnYW31AE7AkAHb0pOUmdlS3RK/ZcGnT3EWny0Lb5WrX9kw2sEAH7sWGwIibWgI4IDVNoqbZNivBfe8G0j4YxzCVtcizXEkjHkiQGw9Bawq15R2vw00LyuwgMRtMkpCtGTxe/IPQjn6UopF2g7PxTHv22dFO59k23uwtvYXsfWqUr2RKEZbL5lnanB4h+7gxMbv0UGxPuBtf4U3r5zllLoZVTQEGuN72cFdwwtxX0FlOIMkEUjcvGjH3soJqpKjLk4+uiVSXtT2jTBRqzKZHc6Y41sCxAubk7KoG5PSnVec/a3CythcR+BS8bH8pkClT6X0kUlsjjinKmTMj+0dJJVixUBw+s2R9YeMk8BjYaSflUrOO2h71sPgYhiJENpHY6YYz5Fhu7egrzCHAySyiFvHHKSCQu8fW5t09T1q/5ZgEgiWGMWVR8SerG3U05Ujo/bhsgHL8RMZ3xMqA4mPu5Y4g3d2AGh11k2dbH0Pzrviskik7zvNZ71w72YrqKrpUHTa6gdPU0yoqOzLsSL2WgQ6sOZMO44eKRwfkSQareadn8RHpUO0hmkdpHRTq6sSfInz86v9FCm0Psyt/ZtEWzFmUbRQMHPkXZdKn12J+FetV5hPgZcPI2LwLFZSdUkRJMc/UgqeG5sR1r0DIc2TFYePER+zIL2PKkbMp9Qbj4VTd5Ofmjp+CfRUXGZlDEVE00cZb2dbqt/dqO9SgaRiccXiljUM5sCyqPUuwRR8WIrtVP7a4uVsTgcLBoMjSPNZ76P3KMVD6d7Fj81qN2YzfFTZnLHi0SJoMPYojalu7o2q9+q6fgKrrgv9t9bLukqkkBgSvIBBIv5jpW1VHsLlmGLz5hhmkP3mRwQzAr4JGuy2HDHcXvYGrdSaomSp0ZFFAoqloyZioWcZh3ERlMbyBbXCWuATux1EAKOSeg3qbWG9Kg0RXu6xJkGNFuNIh70aDEV1FtXs95rsb8aVtfc00yXMvvEQlEbopJC6tPiA4dSpN1PQ9RvxakAyTG/cfuxfD7wmIx6W0m6FSe95DX39i3S3WrXCDpGq17C9uL23tVMqVUbUUVXu2HaRcLGUW7YmVSIY1F2LWsGI6KDuSfKpJjFydIrefYr7/imiv/AKJhWsR0mmHN/NE4t1PnU12Cgk7ADf0AFVXKMwkwkMceJwrRxjmUOJPExuWkA3W5PO9NcdjmlZsNh9JYj95KfEkSsOAPxORwPLc0STs7ulYWjPZHA97EkEqhUIKrqsS0dvCXXgMRyN/0rt2pyxx+5hKMFdGIYkXCEOFBANjcAX8qgSYebDCO0jywodLDQDIF0nSxK7vY24F7edQZswlklZ4JCsekL4k2ZrsSyq1iLAgX6+tKvR191fa8aosGCzSORA99JN7qTupBIZT7iCKmK4IuCCPSvP8AHQCEJKjNqUhSL/0mttw3S9yTepK4jERKztKgvYeFfCmpgC5JO9gb7+VPqcvX0WzH5h3ZVQjO730othsttTEsQABcb+orOX44ShvCyMhs6Na4NgRuCQQQQQRUfJclRp1ZZnZipUl5C4s1mJseCdPC2FZz7JoopXeSZ0Nl8SytGNgbEgG1wL83qfFmv7Ufjf3bFeY5GkuLRJ544oZmVRGquZZTsCosLKL2u3QGvW0QAAAWAFgB0A4FeS4jEyDDYfFsZNULBnKN3btHqsx2HVLMV2G5r1mKUModTdWAII6g7g/Kr8HFzpqjakvbPEwx4Kd8RGJI9NtB/GSQEUEbg6rbjcc06qnfaU2qKCJSC33iJ2QbsY1Yhm086QxW54FC2ZcauSQh7K5U2HgCubux1Ec6bjZATuQP1NOaKQZ/2mGFkCGCRwV1al45IsL8nb61GZM68yY/oqJl+YJNEsy3CsL+IWItsbios+dKLkAWHJJtx/KimKhrUGDN4HlMCSq0igkqN+Od+LjyvXCLHpiYygYp3ikBlO/iFrqT1rGS9noMKLxL4rWLtuxHlfgD0FFex48jaq2k+JixDYLBYjuEbVOxKo5LSsBpUMNlFvqacyY0dBeq72wEb/d5GvHaQK8gJDIpB21DgE9TxVQ2TNNwdbr1f/BOXs9I5xM+ZaZprgL4b+ACw0rwnU7datP2W4rXl0IL6mjLIw/EmljpRh0ITT8LVTcV2zk+9xRYSNZl0iP2vbc76RIfCdrbevNW/sDk08TYmfEIIjiGQiIMG0hARqYrtdr9PKtZaODiXNTly+aa/wCteP6FmfARGVZyimVVKq9vEFO5ANRZMpw/eSsFCTYlCrsCQ7KoC3HlYEbj0rrnkUzYeVcO2mUqdBvbf0JBsegNtqrHZaSd8bJFN3qph0DokzI8o78abNIjEFRoYi+/j9BUI2SdXZY+zmSpg8OmGiLMqX3a2o6mLG9gByaZUUVJLbbtmRRQKKtaM2YoooqCwooooAj5ljVhikmkNkjUs3uUX29a85yGJ5C2NxG8+I8X/LT8Ea+QC2vVl+1AH9mYjTfhL25094mr6XqClrC3Ftvd0oejp4VUbNZog6lGAKsCCD1B2NI+w0YXBoAB7T3PnZ2Fz5mwHyppm+KMUEkgBJVCQALknpx62rl2fwRhw0UR5VRq/rHdvqTU+Db/AGknHEiNreVVyrSwvsaU4nKjym48jz/nQmSVrH+OeCPopaRv7Isv1NMiK5nLWWVpWBuVCgW4AuTv1ua7IhJsASauy2znkr9wsiph3LtIzKY08LX3UFxslhtvbzrvmEryvDBNCySNIramKsn7oh20NcliVBAFgbE3p7gYNCAHnk+81B7T7QibrDIknwDBX/7C1T5NFzN4Gc8IdWRuGBB9xFjTT7NsQz5dBq5QNGf+k7IPoBVTPa3C39tioNtYjcp/Fa1Wf7MV/wBXxMdtbyv8Gle30ppNLJy8yahn2VaPMMwxL4iaHFMjxSSKkAC6AIzYK6ndiep9aW59PjnWPMsT3SmLxJFoAAXgjvL6rm/BuL1JwudQ4bEZhLiW0zmZ7JwbDaMqo5upvfrfelufZ5h8ZhEl1mOWAbRs4ILC2kaD7YNvL9a2pHGp8y5sL7eyzXvx+P4lx+9LYE9QDbrvvvW8U4bg/ClKsxALizEAkeRIuRXfCKSwt05rnPRoM7m2Cee5+HFVLNcJGo7wIPE6iQdGVmF7ji97G9WjOx4l936mkeaw64ZFHJU2943H1qoji8koU+wUxkj9dwf8armEm1ojj8Sg/MU5yM7sPQfrRIlmrKRsalYXDXB1qCpFrEXB94NTq4Y3FrEjSN+EE26mwvYDqTUg5Uiv9rmiw8UDIqJ3eIjdFUBfZNyQB6V6pgMwinXvIJUkX8yMGHu24PpXmOQ5QHUYrFKJJpRq8QuI1O6ogPFh/OpuUxLhs0w/cgIuKWVJEXZT3a61bSNrg9fX31eNE8kFJYej0ebVpbRbVY6b8Xtte3S9IuyOTTQiWfFur4nEMGkK+yoUWSNfRRf5/GrBRSs5LpUFFIpMfM5MigRJAx7xHYAv56iAQihPGCCb3W9hemuAxJkjWQxtHq/C1tQF9ibcXG9ud9wDtToGiSKKBRVLRmzFFFFQWFIu1/aVcFEG095JIdMUYNtR6knoo6n3U9rzD7WL/e8Hf2dEun+tdb/S1OKyaccVKVMiTdvJ2DxY+GF8NKpSQw6w8Yfa/iJ1W+FHY7OA8awSEiRFGnULGSP8DqDztz7qqscUjyvBbXrQlRbcdCD6epp/luQ4xki76dYe6XSgRFaQC1t5DwbbeE2qpJUdkYxSLfRSGPJcQpt99d4yCHV0Ukggg6WG4NQzk08aYe3704VH0qDYPITpjvf8IU3+FqzpexdV7LVRVeyztFGtoMVMBOCQxKFEJudlJFiBsL9easINJqhNNBRate8F9NxfyuL/ACrakIKr2aJ95xS4U/0MSiSYfnJP7tD6fipnmWcQQW76VUJ4G5J9bC5tUDs08bviZkljk72QEaTuFVQFDAgEHmqWMlK1kdiMW02Gm1rW2t5W4tR9nchilxWB/wBnGVliH5VlvqUeQDD6mtq4dkJL5hjHXxCOCJSB1JLNYeZtREznmDLljMsikuXjQuVKhyqlgCCNmIuK8l7D4SMxtHLEhnw0jISVBYbkjci/tah8KtWZ/aIoy8Y6CLxGbujHIfYIBJvp/wB0bf1hVKyOA4qSedcRKmJNmkdAohu4uE0j2gvBvV06Hwwkou8F4eMHkA1lUA2AtSrIcyeTXDOAs8Js4HDA+zIvoabVk8FPGCJmOF1rtyOP8KSth34KN8jVk1C9r7+XWs006AreDyllUIqaVAsLnj5707wWFEYte5PJqTRQ3YrOc0wXn5VTpMNNMxd9r/m6egHQU9ne7E1pXlv9SnFtQS/JvzfpHF9R1/dbpbS0/wDBOiCtH3SMyeHSDtqG1ri+165djoFlzG6Bu6wMJjBa9+8kNju258IO9RUY3uNj09KcfZxlcZgjxCTzhleTvk1gRvLcq7SKFudrEXPFq6/ovqHyp9tr/wBD6rhjwRqOnj8F6orybNe3+LmkY4NkigViEJQO0ljYsdWwU9AN6uHYPtU2MSRJlCTwkawvssGvpdb8Xsduldrizz5cUkrG2LyOOQyFnlHe86ZCoHgCbKNjsPxA9aZItgB5VmipIsyKxQKKtaM2FFFayyBVLMQFUEknYADcknoLVBZxzDGpDG80raURSzHyA/mfSvMMzafNdEktoMMraokABlboHZ/w3HQefXY1P7S5mcwf7qgXuI5Y5GdW1LPHpJABAtfXsV9B5UyFNujq449Vb2cYMKieyiggWuBvbyvzXaiisywooooA4YzCJKpSVFdT0YX+XkfUVTsxXFYQHDQMxhk3SQ3LQj8Savla/ntV4qLmmD76J4tRTWLagLkfA1UXRUZUeZx4OFiQjEyDcvqJYH81/O9X3sxmLSYNJZN2AYMfPQSL/ECqhi8GUkbBYZdUgsLgbKCAdbt02Pzq+ZXl6wwJANwq2Prf2j8SSfjVzaob1komRDvteLks0kjG1/wgdB5eXuAqVgLyPqRDFiYzx536Ej20beo8eBlwuJGFj0ypIbqAfEqnqw/DYeextV6wWXpGdQF2IsW8xzb3Xok6Km6YmkyafFHVipWij6QRN0/4j/iPu28qYZb2ew0BDRRAMOGJJYe4k7U0orNyZDk3gijLYhe0a7v3h9XG2q3nXP8AY8PdmIJZGYsQrMpJPJJU3+tTqKLYrZVpOyjRN32CnaOS1tMnjVhzpJIuB86xjMxxMiCJ0bDsLiVh+LyETeRG5bkcetWqo+YYRZY2ja9mBFxyL7XB6Gn29j7Xs8/iy7DyhjDqDKdpAXvq8wxPi3q09i81eeAiXeSJijHztwT69PhSjPcQuE0x6SxI/dqo2IG3wpj2Fy2SKF5JQVeZ9Wk7EDpcdCbk291VLRbzG3/IdY7MoYbd9KiX41EAn3Dmu+GxCSKHjZXU8FSCPmK86xkmqfEySLrdZWUC1yFTZQoPpvWuTwSyMVwbtGJPDMONAvu4B4a1xt50dME9UW04qNpHSN1YofEBvpv0J4ramWXZfHBGIolCqPmfUnqakCMeQ+VeVy/p6cri6R2R+tpU0LcNhS3ov/nFQ17NGJX+54qeAsDca9UbFhY6lPJI681YKK6/p+FcKqJzcvPLkeTzvF5FNE0MO7KqamMYaxK22Jt5/OrT9lMZbGYmRfYWJEJ6ai17epABp3SOTK5cMzYnL3aOQks0RJMU19yGUnYnoR9Oa6lO8Myl9yaPUqKWdms6TGYdMQgI1XDKeUZdmU+4/S1M6RxNU6YUUUVa0ZvYV51neeTY6Z8PhZGiwsLaZZV9qVhyiHoo6nr7qsnb7NGw+Bmkjv3jARpbnVIdII9QCT8Kr2T5esEKQr+BQD6n8R+JvU3Ss6+GKrszphsPHCuiNVjW5NhsLnk2rsjA8G9LJ2JY386xE5BuKg3oT5nnuNw87F8Prw+rwlASdPQ6hext0YVbIpAwDDggEX25346UM1gSdgKSY/M3IPdbbGwJtc+p6U9g3fge0VTsP2iI03Mgdv8AZkMxFjY38hfrVnixJeMsgBcA2Umw1W2BPQetJqhNNEqiqlhDm3fIZBEI9Q1AaLab72t4uOKttDVA1RW+0cfczQ4xNjrWOW34kfYE+ZB/Sm+c44QQSTHfQpIHmeFHztUDtjHqw27Kqh0LsxtZQ1zbzPFh1vXNsSMadC6WwzKra1I1q6OraJFPFx6VW0itpNnXstlZij72XxTzeORjzvuF9AP507orWWQKCzEAAXJPAA5JqW7ZLds2oqJgMzhmuYZUe3NjuPeORUukKgooooAKKCa1jkVhdWDDzBBH0oAhZzla4iPQ3hYbo42ZG6MCN6idlsxeWNo5v6aFiknrbhviP5GnVIZtGGxMk7my4jukUDclxqB2HS1t/fVLKopZVCrtjlxiY42MrZrCRCbajwrL6+npTzs9lixoJdJWSVVL3vcdQpHAIvao2cJ3mNwsTeyoeUjzK2C/I71YKbeEgekFFVRkzYSkhoWj1GynSBpvtwNQ2pvm+YmNTpBJAudO59yjqanqDiMyag53jWhhaSOMyPsFUAm5JsLgb2HNVKXOgyFo1Z5LhdBBBBbjVfgetN8vxkiKuogmw1AX0362vxVdaDq1skdl0xlnkxjDx20JYArze9ht02uTtT2uWGnDrqH/AKrWbFKu3JqXlieWL0xEmAl72ESNBJI0k0aKGZ3ZQqqoI8C38Ra/SvRMux8c8ayxOrKw5Vgw9RdSRccVTIcQG260qWU5bOMVDthpGAxMQ9lb7CZB0I62/wDVJ3gifH2/J6jRWEYEAg3B3B870VaOJopf2p37jC/l++Q6vd4/1tWKlfaj3f7Om7xipuvd25MgYFAPfv8AC9I8gzQYiEPw48MinlXHtAj6/GoksHbxZ4yVPhQ2/BrWLBgG5N6lVhmABJIAG5J4HqaguxZnU1rIOu5/SlJNSsxnV31I6sLDdSCPpSjOpSsL29phpX3udI/nVxQ0jTIxeMyHmVmf4E+H/tAqw5I/iI8x/I/50rgiCqqDhQAPgLU0yVfET5D+Z/yokEnYzxE4X1PlXFMd5j5VjHxm4bpUOpBJELtrnKxw90o1STCyDy3Hi363sAPP3U3ybLhDGo0r3hA7xgN3a25J67k/OqjgMMZ81YtuuHF7HppA0j+Ni3wq+1UsKip4SQVpPCrqyOLqwIIPUHYitwN62K8n1qDMrOG7GwxTJNDJIhU303BB8xci9iNqcYvMFTYbt5dB766Y6fQhPXge81XiarL2U25bNT2tXx3cIY/aDKQebbA7n4edMcrz4SKGIIVuDYj4kHpVczVR3uH2H9IfoppnVNIbS8EvtJkL4soBiNEQG6hb6jf2r6hfa1r1MyDJEwkZjjZm1NqJa3NgOBsNhWuTYjlD7x+opsBUtuqF2dUYqPj8MZEKq5jY8OoGpfMi/G23xqSV+tYqSdFRyXFd9jADqvhUZNRI1t7Kt3q9btcgrt51bqomek4XM4p12Wawf1udD/TS3vq0z4lidjYVcvDNJq6aGVVmeTUxbzNN8LOb2JuDSUi21KJFCzOPCYZfySAN/VcaT+lM6iZrh+8hkTqVNveNx9bVtl2I7yJH/MoJ9/X63q/BT0Ncrn0vbo23x6V1cEHfmlEWKBdkF9SaSfLxbi3yq2NGDyAah4FogYNSWFulS8bhhJG8TcOpU/EWrsqgcC1azShVLsbBQST5AC5qRWTOwGdA5fhxJ7SqUP8A02ZB9FFFQOwWSs+AhkbYvra3o0jsPoQaK6aRyzUez/JAznFffswsN8NgTYeTzdT66ePePWmLFUDMdKjljsB7yf1qJkmXCCFYhuRux/Mx3Y/P6AVLxECupR1DKeQRcH3isG7Z1YWFohjPcLe33mG//MX/ABrji8eZDLBDh5Z7IA5j0FR3imwuWF9t9q6HIMLa33aH+Bf52quZ52bhwxGLij1RoQZYSWsVJsShBupHv/wLio2UlHwbYCDuD/pGFmgUwQqz9y2nvI9QZroCLEEG5pjDhFlXVDJHKvoRt7/I0s7JSK+I7tcViMOlpu7kE1lkKyjRpWQlT+7NiLdKa5jlcqY6FGeJ2sZWnRO6lZFOnRKEOh9TEb2HsmtJLyOW8mVy2TjTb4im+CwwjW3JPJqRRWNmYVqIxzYVtRSAq3Z1bZhjgeSUPwNz+oq01S8Zm8MeYiZH1IyCOdhuiEnwEsNr7D+E0xk7TNIxTBYdp9JsZCdEQ9zH2vpVtNmkot5LHRVcOMzJd2w0Dj8qOQ3zY2rtge1ETP3U6vh5fyyCwP8AVbg/S9T1ZPVknPDsg9T+lIcDjBKpYAizFSDyCptvVlzTDl125X6+dVPEZUC5kR3ic+1p4b3qdr1UdAqOOazAT4YE/ib+7YfU00JsLnYCly5JHZu8LSM3LMfFtxp/L8K1OTXGl55XT8pI39CQLkVWCsextkGLEhjkUEBibX5tuL1aAaR5LhNwQLKosPLyAHurfNe0kMLd0NUsv/1xjU3x6D+fpUPLwTVvA5vRVcGPzF90wsUY8pXu3yW1q1btHNCf9NwrIn/2xnWg94G4FHVh0ZE+0KEMcL+Yy6R/a0/qBVhmwZv4dxVdxWLjxeY4eNHVo4FMlwdmbYgDzI8J/iq40PCSKlaSREwuFsbn4UnzzDuuvuyAzAlSRtfyPx/nVjrSWIMLMLikmRZRv2lJa33eTvPKw0X89d7Wrlg8tmiQKkygHchk1AE86TcbX6Grl+yk/wB75/5V3iwUa8KPjv8Azqu5Xf0IMiycjcktqOp3blj6enS3SrPRRUt2S3YVWu1S4mcNhcPGQunU8h2DbXEaeZJ2NS8ux0k2Km0taCH93aw8cmxY3/3ePjTqj4sfxY47M9ocNLhYXDpENAHdk20FPCVsegIIHpWKo2M7HLI7SLJoDEnTbgnc/M3Pxora4GL4YN7LFULNM2hw4UzPoDGw2Y8b9AbVNrDKDyL1gaISt2twQF/vC/ANf5WpNmucNjlOHwkbmIsollNlspIJCgny338uKt4w6A3CL/CP8KqGLikwmLlxBSV4Jd/3W4Um1y6eljY+tXGvBrDrZpDgP9ImQwLLHErlUNvF3pRlUahYHwnf1ph2XwyjEYkoCETRGoLFtOxZ1W5NgGPA2pTL2kw4iWAYmc23Mv8AtLhrhDcb348qsHY6FhA0rqVaeR5LHkBj4foB86bbrJU7UR7Vfl7Qu7tHg4DPpNmcsFiB8gx9o+6mmcq5gmEd9ZjfTbm+k2t61B7HyxthIhFbwqAwHIf8WoeZNz8alasySVWd8qfFlj95SFVtt3ZYte/W+1rVw7Q5Kk6s8jy2WNvAHIQ2BIJUcmnVRsya0Mp8o3/umknkE8iDFH/U+X4SNVT75IBIwAuQrEk/1r6d/SrHhMMkaLHGoVVFgBWuU9mlxmUYSMuY5EUSRSDco12INuo3491L8sxOITESYLF6DLGocSJ7Mitte3Q/Lr8bnlEpp2l7Y3qLmWXRToY5kDL9R6qeQalUVmBWMqxMmEmXBzsXjf8AoJTzt/s29fL4edhYpcMje0oP8/nSrthgu9wsltmjHeIRyCm+3wuPjU/KcX3sMcv50Un3kb/W9U9WVLKsP2dF+X6n/Gt0wMY/APjv/OpFYdwASeALn4VJJX8+x8jyLgsKdMjC8j9Ik8/6x/UedwwyfJosMumNdz7Tnd2PmT+lLOxMeqOTFN7eIkZj6KpIVfcN6slU8YLk6+1BWHQEEEAg7EHg+hFZpVnuPlQxQ4dVaad9Caj4R5s3oP8AzyqUrZCEOGyaJf2hBYqcPH97w8i7SIQu6auqnYWPlfmm/ZnHYqRFOIjXS0YdZVYeK9rBk5DW3uNtqat2XOEwGPlml77ETYeTvHtZQFRrKg8h59duKi9nf/i4f/kx/wB0VpJ4K7qSb/vR2zDMooArTOEDNpBN7X3O5HHHJqUrAgEEEHgjg1rNCrqVdQykWIIuD7warYRsBIoUlsJKwXSSSYGbgqfyE/8AnnCVglZZ6KKKRIVhyQCRzbas0UAVvsjio48CkjyKLl2dmNvEWN7+vG1NMkzEzxmXuyiljovy6i1ntba++1cW7NYUyGUwIXJub3tfz0303+FNhVNplSaZIi4rFEXFFSZnCiiigoKKKKAOZhUm5Vb+dheulFFABSTHdmIZHMqGSGRuWibQT7xxTuihOhptaFWVZKYXLnE4iW4tpkfUvIN7W52+prp2jk04Wc/8J/qpFMaQ9uZCMFKBy2lR66mX9L01ljTuSL52NiK4DCKeRBHf4qDVEyaQzYvG4p/aMxhUflSKwAHv2+Ir07CQ6ERB+FVX+EAV5nnMZy7GyNICMLi31q9to5D7St5X591vI2vdmPE7k/bHdFaxuGAKkEHgg3B9xFbVmaEPOZQuHmY8CN/7pqJ2SjK4OAH8gP8AESR9DSvPcX98kGBw5utwcRIPZVQb6QepJH099rTGgUBQLAAADyA2FU8Ip4jRtXHGoWjdRyUYD4giu1FSSIuxEgbBQ26BgfeGantVOGf7hiHjk2w2IYsj9I3PtI3kD+g9bWtWvuNweDVS3ZU1mzNV/trdIVxSG0mGkSRD/aAI9xuPlVgNVzFf6xnTA4fxRKwfEyD2Aqm+gHqSfLr7jYjsI+3o9Ez5e9wM4/Ph5Nv60Zql9mGvhMOf+Eo+QtXos0QKMnQqR8xavMexL3wUQPK6lP8AZdhTejHh+LJ+a4aV1HcTd0wN76Qwb/dYHp7qVTZRipiq4mePulYMVjQgvpNwCW4F/KrFRUp0aqTQUUUUhBRRRQAUUVvooA6RcUUR8UUyTjWaKKRQUUUUAFFFFABRRRQAUh7XDw4ceeKh/vGs0U4/JDWz1GouaYdJIZEkVXUqbqwBB26g7UUVSOJbPm7DYuSOYrHI6DUdlYqOfIGp/aHMZiigzSEE7jW1jseRfeiitfJ7D+SL52MhVcHEVUDULmwAufM25NO6zRWMtnJL5MLUWooqRETN4VaGQMoYaSbEAjYbbGvK+zmOlUsqyuqgCwDMAPgDRRWsNG/H8Wcc6x8rNpeWRl8izEfImvfexGGRMFBoRV1ICdIAuTyTbk+tFFU/iZfVf6cR4K8v7KD93N/+mb+/RRWb0c/Dp/yHdFFFQbBRRRQAUUUUAFFFFAEiIbUUUUxH/9k='); 
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-direction: column;
+      text-align: center;
+      padding-top: 40px;
+      position: relative;
+    }
+
+    h1 {
+      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRX8wxC5U_MUzo6SO-FM-_k18Vf-u6HLAofrA&s');
+      margin-bottom: 40px;
+      color: #7a043f;
+      font-size: 2rem;
+    }
+    .button-row {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .yn_container {
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      background-color: rgb(228, 228, 9);
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.4s ease;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    #resultArea {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+    }
+
+    #loveImage {
+      max-width: 300px;
+      border-radius: 10px;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    #loveText {
+      font-size: 1.5rem;
+      color: #cc0066;
+      margin-top: 20px;
+      background-color: yellow;
+      padding: 10px 15px;
+      border-radius: 8px;
+    }
+    .gif-box {
+    width:1000px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    }
+    .gif {
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    animation: fadeIn 1s ease forwards;
+    }
+    @keyframes fadeIn {
+      from {opacity: 0; transform: scale(0.8);}
+      to {opacity: 1; transform: scale(1);}
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="flex flex-col items-center gap-4">
-            <img src="data:image/png;base64,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" alt="Logo Đại học Công nghiệp Hà Nội" class="w-24 h-24 rounded-full shadow-md">
-            <h1 class="text-3xl font-bold text-gray-800 text-center">Ứng dụng tìm đường Best First Search</h1>
-            <p class="text-gray-600 text-center">Mô phỏng thuật toán tìm đường trên mạng lưới giao thông đơn giản.</p>
-        </div>
+  <h1>Làm người yêu Vịt nhá hẹ hẹ! 💖</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="input-group">
-                <label for="startNode">Điểm bắt đầu:</label>
-                <select id="startNode" class="w-full">
-                    </select>
-            </div>
-            <div class="input-group">
-                <label for="goalNode">Điểm kết thúc:</label>
-                <select id="goalNode" class="w-full">
-                    </select>
-            </div>
-        </div>
-
-        <button id="findPathBtn" class="btn-primary">Tìm đường</button>
-        <div id="errorMessage" class="error-message hidden"></div>
-
-        <div class="relative w-full">
-            <canvas id="trafficGraphCanvas" width="800" height="500"></canvas>
-            </div>
-
-        <div id="result" class="result-box hidden">
-            <h3 class="text-lg font-semibold mb-2">Kết quả tìm kiếm:</h3>
-            <p id="pathResult"></p>
-            <p id="costResult"></p>
-        </div>
+  <div class="button-row">
+    <div id="yes" class="yn_container">
+      <button id="yn_yes">Tất nhiên rồi 🐥</button>
     </div>
+    <div id="no" class="yn_container">
+      <button id="yn_no">Không muốn đâu 😭</button>
+    </div>
+  </div>
 
-    <script>
-        // Best First Search Algorithm (JavaScript adaptation)
-        function bestFirstSearch(graph, heuristic, start, goal) {
-            const visited = new Set();
-            const priorityQueue = []; // Stores [heuristic_value, node]
-            const parent = {}; // Stores parent of each node for path reconstruction
-            const costs = {}; // Stores actual cost from start to each node
+  <div id="resultArea">
+    <div class="gif-box">
+        <img src="https://i.makeagif.com/media/4-27-2018/XZuVxx.gif" class="gif" alt="GIF 1">
+        <img src="https://media1.tenor.com/m/ueJRtSUMlhYAAAAd/love-u-so-much-i-love-you.gif" class="gif" alt="GIF 2">
+        <img src="https://i.makeagif.com/media/4-27-2018/XZuVxx.gif" class="gif" alt="GIF 3">
+    </div>
+    <p id="loveText">Anh em mình cứ thế thôi hẹ hẹ hẹ 😏😏😏</p>
+  </div>
 
-            // Initialize with start node
-            // For Best First Search (Greedy BFS), f(n) = h(n)
-            // For A* Search, f(n) = g(n) + h(n)
-            // Here, we implement Greedy Best-First Search as per the document's example
-            // So, the priority queue uses only heuristic value.
-            heapq.heappush(priorityQueue, [heuristic[start], start, 0]); // [h(n), node, g(n)]
-            costs[start] = 0;
+  <script>
+    const noBtnWrap = document.getElementById('no');
+    const yesBtnWrap = document.getElementById('yes');
+    const noBtn = document.getElementById('yn_no');
+    const yesBtn = document.getElementById('yn_yes');
+    const resultArea = document.getElementById('resultArea');
 
-            let foundGoal = false;
+    let noScale = 1;
+    let yesScale = 1;
+    let disappeared = false;
+    let isLocked = false;
 
-            while (priorityQueue.length > 0) {
-                const [h_val, current, current_g_cost] = heapq.heappop(priorityQueue);
+    // Khi rê vào nút "Không muốn đâu"
+    noBtn.addEventListener('mouseover', () => {
+    if (disappeared || isLocked) return;
 
-                if (visited.has(current)) {
-                    continue;
-                }
-                visited.add(current);
+    // Di chuyển random
+    const x = Math.floor(Math.random() * (window.innerWidth - 200));
+    const y = Math.floor(Math.random() * (window.innerHeight - 200));
+    noBtnWrap.style.position = 'absolute';
+    noBtnWrap.style.left = `${x}px`;
+    noBtnWrap.style.top = `${y}px`;
 
-                if (current === goal) {
-                    foundGoal = true;
-                    break;
-                }
+    // Thu nhỏ và mờ dần "Không muốn đâu"
+    noScale -= 0.1;
+    yesScale += 0.7;
 
-                for (const neighborInfo of graph[current] || []) {
-                    const neighbor = neighborInfo.node;
-                    const edgeWeight = neighborInfo.weight;
+    noScale = Math.max(noScale, 0);
+    yesScale = Math.min(yesScale, 6);
 
-                    if (!visited.has(neighbor)) {
-                        // For Best First Search (Greedy BFS), we only care about h(neighbor) for priority
-                        // The g_cost is passed along to calculate total path cost later
-                        const new_g_cost = current_g_cost + edgeWeight;
-                        
-                        // If neighbor hasn't been visited or we found a shorter path to it (not strictly needed for BFS but good practice)
-                        if (!(neighbor in costs) || new_g_cost < costs[neighbor]) {
-                            costs[neighbor] = new_g_cost;
-                            parent[neighbor] = current;
-                            heapq.heappush(priorityQueue, [heuristic[neighbor], neighbor, new_g_cost]);
-                        }
-                    }
-                }
-            }
+    noBtnWrap.style.transform = `scale(${noScale})`;
 
-            // Reconstruct path
-            if (!foundGoal) {
-                return { path: null, totalCost: null };
-            }
+    yesBtnWrap.style.transform = `scale(${yesScale})`;
 
-            const path = [];
-            let node = goal;
-            while (node !== undefined) {
-                path.push(node);
-                node = parent[node];
-            }
-            path.reverse();
-
-            return { path: path, totalCost: costs[goal] };
-        }
-
-        // Simple Min-Heap implementation (mimicking heapq in Python)
-        const heapq = {
-            heappush: (heap, item) => {
-                heap.push(item);
-                let i = heap.length - 1;
-                while (i > 0) {
-                    let parent = Math.floor((i - 1) / 2);
-                    if (heap[i][0] < heap[parent][0]) {
-                        [heap[i], heap[parent]] = [heap[parent], heap[i]];
-                        i = parent;
-                    } else {
-                        break;
-                    }
-                }
-            },
-            heappop: (heap) => {
-                if (heap.length === 0) return undefined;
-                if (heap.length === 1) return heap.pop();
-
-                const item = heap[0];
-                heap[0] = heap.pop();
-                let i = 0;
-                while (true) {
-                    let leftChild = 2 * i + 1;
-                    let rightChild = 2 * i + 2;
-                    let smallest = i;
-
-                    if (leftChild < heap.length && heap[leftChild][0] < heap[smallest][0]) {
-                        smallest = leftChild;
-                    }
-                    if (rightChild < heap.length && heap[rightChild][0] < heap[smallest][0]) {
-                        smallest = rightChild;
-                    }
-
-                    if (smallest !== i) {
-                        [heap[i], heap[smallest]] = [heap[smallest], heap[i]];
-                        i = smallest;
-                    } else {
-                        break;
-                    }
-                }
-                return item;
-            }
-        };
-
-        // Graph data and heuristic values based on your document's example
-        const graph = {
-            'A': [{ node: 'B', weight: 2 }, { node: 'C', weight: 3 }],
-            'B': [{ node: 'D', weight: 2 }, { node: 'E', weight: 4 }],
-            'C': [{ node: 'E', weight: 5 }, { node: 'F', weight: 3 }],
-            'D': [{ node: 'G', weight: 6 }],
-            'E': [{ node: 'K', weight: 1 }], // Assuming E directly connects to K with weight 1 based on diagram
-            'F': [{ node: 'H', weight: 2 }],
-            'G': [{ node: 'K', weight: 4 }],
-            'H': [{ node: 'K', weight: 3 }],
-            'K': [] // Goal node has no outgoing edges
-        };
-
-        const heuristic = {
-            'A': 7,
-            'B': 4,
-            'C': 2.5,
-            'D': 2.7,
-            'E': 2.4,
-            'F': 1.3,
-            'G': 0.45,
-            'H': 0.53,
-            'K': 0
-        };
-
-        // Node positions for drawing on canvas (manual estimation from image)
-        const nodePositions = {
-            'A': { x: 400, y: 50 },
-            'B': { x: 200, y: 150 },
-            'C': { x: 600, y: 150 },
-            'D': { x: 100, y: 250 },
-            'E': { x: 400, y: 250 }, // E moved to center
-            'F': { x: 700, y: 250 },
-            'G': { x: 200, y: 350 },
-            'H': { x: 600, y: 350 },
-            'K': { x: 400, y: 450 }
-        };
-
-        const canvas = document.getElementById('trafficGraphCanvas');
-        const ctx = canvas.getContext('2d');
-        // Removed nodeLabelsContainer as labels are now drawn on canvas
-        // const nodeLabelsContainer = document.getElementById('nodeLabels');
-
-        // Car animation variables
-        let carPath = [];
-        let carCurrentSegmentIndex = 0;
-        let carAnimationStartTime = 0;
-        const carSegmentDuration = 1000; // Duration for car to travel one segment (ms)
-        let animationFrameId = null; // To store requestAnimationFrame ID for cancellation
-
-        // SVG car icon (simple representation)
-        const carSVG = `
-<svg width="36" height="36" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-  <g fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-    <path fill="#FFC107" d="M2 36h60v8a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4v-8z"/>
-    <path fill="#A0AEC0" d="M10 36v-6a10 10 0 0 1 10-10h24a10 10 0 0 1 10 10v6z"/>
-    <circle cx="16" cy="48" r="4" fill="#2D3748"/>
-    <circle cx="48" cy="48" r="4" fill="#2D3748"/>
-  </g>
-</svg>
-`;
-
-
-        // Create an Image object from SVG
-        const carImage = new Image();
-        carImage.src = 'data:image/svg+xml;base64,' + btoa(carSVG);
-
-        // Function to draw the graph
-        // fullPath: the entire path calculated by the algorithm
-        // carX, carY: current position of the car
-        // highlightedNodes: nodes that the car has passed (to highlight the path)
-        function drawGraph(fullPath = [], carX = null, carY = null, highlightedNodes = []) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-
-            // Draw edges
-            ctx.lineWidth = 2;
-            for (const node in graph) {
-                for (const neighborInfo of graph[node]) {
-                    const neighbor = neighborInfo.node;
-                    const weight = neighborInfo.weight;
-
-                    const startPos = nodePositions[node];
-                    const endPos = nodePositions[neighbor];
-
-                    // Check if this edge is part of the highlighted segments
-                    const isHighlightedEdge = highlightedNodes.includes(node) && highlightedNodes.includes(neighbor) &&
-                                              highlightedNodes.indexOf(neighbor) === highlightedNodes.indexOf(node) + 1;
-
-                    ctx.beginPath();
-                    ctx.moveTo(startPos.x, startPos.y);
-                    ctx.lineTo(endPos.x, endPos.y);
-                    ctx.strokeStyle = isHighlightedEdge ? '#4f46e5' : '#a0a0a0'; // Indigo for highlighted path, grey otherwise
-                    ctx.stroke();
-
-                    // Draw arrow head
-                    const angle = Math.atan2(endPos.y - startPos.y, endPos.x - startPos.x);
-                    ctx.save();
-                    ctx.translate(endPos.x, endPos.y);
-                    ctx.rotate(angle);
-                    ctx.fillStyle = isHighlightedEdge ? '#4f46e5' : '#a0a0a0';
-                    ctx.beginPath();
-                    ctx.moveTo(-10, -5);
-                    ctx.lineTo(0, 0);
-                    ctx.lineTo(-10, 5);
-                    ctx.fill();
-                    ctx.restore();
-
-                    // Draw weight
-                    const midX = (startPos.x + endPos.x) / 2;
-                    const midY = (startPos.y + endPos.y) / 2;
-                    ctx.fillStyle = '#333';
-                    ctx.font = '14px Inter';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(weight, midX + 10 * Math.sin(angle), midY - 10 * Math.cos(angle));
-                }
-            }
-
-            // Draw nodes and labels
-            for (const node in nodePositions) {
-                const pos = nodePositions[node];
-                const isStart = node === document.getElementById('startNode').value;
-                const isGoal = node === document.getElementById('goalNode').value;
-                // Check if this node is part of the highlighted nodes
-                const isHighlightedNode = highlightedNodes.includes(node);
-
-                // Draw node circle
-                ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2); // Node radius
-                ctx.fillStyle = isStart ? '#10b981' : (isGoal ? '#ef4444' : (isHighlightedNode ? '#6366f1' : '#ffffff')); // Green for start, red for goal, indigo for highlighted path, white otherwise
-                ctx.strokeStyle = '#333';
-                ctx.lineWidth = 1;
-                ctx.fill();
-                ctx.stroke();
-
-                // Draw heuristic value (h=X.X) above the node circle
-                ctx.fillStyle = '#333'; // Always dark for visibility outside the circle
-                ctx.font = '12px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom'; // Align text to the bottom of the bounding box
-                ctx.fillText(`h=${heuristic[node]}`, pos.x, pos.y - 25); // Position above the circle (radius 20 + padding 5)
-
-                // Draw node label (A, B, C...) inside the node circle
-                ctx.fillStyle = isStart || isGoal || isHighlightedNode ? 'white' : '#333';
-                ctx.font = 'bold 14px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(node, pos.x, pos.y); // Centered inside the circle
-            }
-
-            // Draw car if positions are provided
-            if (carX !== null && carY !== null) {
-                const carSize = 42; // Size of the car SVG
-                ctx.drawImage(carImage, carX - carSize / 2, carY - carSize / 2, carSize, carSize);
-            }
-        }
-
-        // Animation function for the car
-let isWaitingAtIntersection = false;
-let waitStartTime = 0;
-
-function animateCar(timestamp) {
-    if (!carAnimationStartTime) {
-        carAnimationStartTime = timestamp;
+    if (noScale <= 0.4) {
+        noBtnWrap.style.display = 'none';
+        disappeared = true;
     }
+    });
 
-    if (isWaitingAtIntersection) {
-        if (timestamp - waitStartTime >= 1000) {
-            isWaitingAtIntersection = false;
-            carAnimationStartTime = timestamp;
+
+    // Khi click "Tất nhiên rồi"
+    document.getElementById('yn_yes').addEventListener('click', () => {
+    isLocked = true;
+
+    // Ẩn từ từ "Không muốn đâu"
+    let fade = 1;
+    const fadeInterval = setInterval(() => {
+        fade -= 0.05;
+        if (fade <= 0) {
+        noBtnWrap.style.display = 'none';
+        clearInterval(fadeInterval);
         } else {
-            const currentNode = carPath[carCurrentSegmentIndex];
-            const pos = nodePositions[currentNode];
-            drawGraph(carPath, pos.x, pos.y, carPath.slice(0, carCurrentSegmentIndex + 1));
-
-            // 🔄 Dấu chấm động
-            const dotCount = Math.floor((timestamp - waitStartTime) / 300) % 4;
-            const dots = '.'.repeat(dotCount || 1);
-            ctx.fillStyle = '#666';
-            ctx.font = '20px Inter';
-            ctx.textAlign = 'center';
-            ctx.fillText(dots, pos.x, pos.y - 30);
-
-            animationFrameId = requestAnimationFrame(animateCar);
-            return;
+        noBtnWrap.style.transform = `scale(${fade})`;
+        // noBtnWrap.style.opacity = fade; // nếu bạn muốn có mờ
         }
-    }
+    }, 30);
 
-    const elapsed = timestamp - carAnimationStartTime;
-    const segmentProgress = elapsed / carSegmentDuration;
-
-    if (segmentProgress >= 1) {
-        carCurrentSegmentIndex++;
-        carAnimationStartTime = timestamp;
-
-        if (carCurrentSegmentIndex >= carPath.length - 1) {
-            cancelAnimationFrame(animationFrameId);
-            animationFrameId = null;
-            drawGraph(carPath, nodePositions[carPath.at(-1)].x, nodePositions[carPath.at(-1)].y, carPath);
-            return;
-        }
-
-        const currentNode = carPath[carCurrentSegmentIndex];
-        const connections = graph[currentNode];
-        if (connections && connections.length >= 2) {
-            isWaitingAtIntersection = true;
-            waitStartTime = timestamp;
-        }
-    }
-
-    const startNode = carPath[carCurrentSegmentIndex];
-    const endNode = carPath[carCurrentSegmentIndex + 1];
-    const startPos = nodePositions[startNode];
-    const endPos = nodePositions[endNode];
-    const currentX = startPos.x + (endPos.x - startPos.x) * Math.min(segmentProgress, 1);
-    const currentY = startPos.y + (endPos.y - startPos.y) * Math.min(segmentProgress, 1);
-    const highlightedNodes = carPath.slice(0, carCurrentSegmentIndex + 1);
-
-    drawGraph(carPath, currentX, currentY, highlightedNodes);
-    animationFrameId = requestAnimationFrame(animateCar);
-}
-
-
-        // Populate dropdowns
-        const nodes = Object.keys(graph);
-        const startNodeSelect = document.getElementById('startNode');
-        const goalNodeSelect = document.getElementById('goalNode');
-
-        nodes.forEach(node => {
-            const optionStart = document.createElement('option');
-            optionStart.value = node;
-            optionStart.textContent = node;
-            startNodeSelect.appendChild(optionStart);
-
-            const optionGoal = document.createElement('option');
-            optionGoal.value = node;
-            optionGoal.textContent = node;
-            goalNodeSelect.appendChild(optionGoal);
-        });
-
-        // Set default values for example
-        startNodeSelect.value = 'A';
-        goalNodeSelect.value = 'K';
-
-        // Initial draw
-        drawGraph();
-
-        // Handle window resize to redraw canvas
-        window.addEventListener('resize', () => {
-            // Re-draw the graph with the current path if one exists
-            const pathResultElement = document.getElementById('pathResult');
-            if (pathResultElement.dataset.path) {
-                const currentPath = JSON.parse(pathResultElement.dataset.path);
-                // On resize, just display the full found path, no car animation
-                drawGraph(currentPath, null, null, currentPath); 
-            } else {
-                drawGraph();
-            }
-        });
-
-
-        // Event listener for the "Find Path" button
-        document.getElementById('findPathBtn').addEventListener('click', () => {
-            const startNode = document.getElementById('startNode').value;
-            const goalNode = document.getElementById('goalNode').value;
-            const errorMessageDiv = document.getElementById('errorMessage');
-            const resultDiv = document.getElementById('result');
-            const pathResultElement = document.getElementById('pathResult');
-            const costResultElement = document.getElementById('costResult');
-
-            // Reset animation state
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-                animationFrameId = null;
-            }
-            carPath = [];
-            carCurrentSegmentIndex = 0;
-            carAnimationStartTime = 0;
-
-            errorMessageDiv.classList.add('hidden');
-            resultDiv.classList.add('hidden');
-
-            if (!graph[startNode] || !graph[goalNode]) {
-                errorMessageDiv.textContent = 'Điểm bắt đầu hoặc điểm kết thúc không hợp lệ!';
-                errorMessageDiv.classList.remove('hidden');
-                drawGraph(); // Clear any previous path highlight
-                return;
-            }
-            if (startNode === goalNode) {
-                errorMessageDiv.textContent = 'Điểm bắt đầu và điểm kết thúc không được trùng nhau!';
-                errorMessageDiv.classList.remove('hidden');
-                drawGraph(); // Clear any previous path highlight
-                return;
-            }
-
-            const { path, totalCost } = bestFirstSearch(graph, heuristic, startNode, goalNode);
-
-            if (path) {
-                pathResultElement.textContent = `Đường đi: ${path.join(' → ')}`;
-                costResultElement.textContent = `Tổng chi phí (ước tính): ${totalCost.toFixed(2)}`;
-                resultDiv.classList.remove('hidden');
-                // Store path data for redraw on resize
-                pathResultElement.dataset.path = JSON.stringify(path);
-                costResultElement.dataset.cost = totalCost;
-
-                carPath = path; // Set the path for car animation
-                // Start car animation and only highlight the initial start node
-                drawGraph(carPath, nodePositions[startNode].x, nodePositions[startNode].y, [startNode]); 
-                requestAnimationFrame(animateCar); 
-            } else {
-                errorMessageDiv.textContent = `Không tìm thấy đường đi từ ${startNode} đến ${goalNode}.`;
-                errorMessageDiv.classList.remove('hidden');
-                pathResultElement.dataset.path = ''; // Clear stored path
-                costResultElement.dataset.cost = '';
-                drawGraph(); // Clear any path highlight
-            }
-        });
-    </script>
+    // Hiện kết quả
+    resultArea.style.display = 'flex';
+    });
+  </script>
 </body>
 </html>
